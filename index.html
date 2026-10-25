@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Effort Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1+Code:wght@400;600&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<style>
+  :root{--paper:#eef3ef;--card:#fbfdfb;--ink:#1d2925;--muted:#62736c;--line:#d3ddd7;--green:#1f5847;--green-ink:#f1f6f2;--shu:#cf412b;--shu-soft:#f7ded8;--gold:#c9a95a}
+  *{box-sizing:border-box}
+  html,body{overflow-x:hidden;overscroll-behavior-x:none}
+  input,select,textarea{font-size:16px!important}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;font-size:15px;line-height:1.6}
+  main,section{max-width:480px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:18px}
+  #form{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+  h1{margin:0;font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:20px}
+  .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+  .field{display:flex;flex-direction:column;gap:8px}
+  .label{font-size:12px;color:var(--muted);letter-spacing:.08em}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  button{font:inherit;color:inherit;cursor:pointer}
+  .chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:15px}
+  .chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--green-ink)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .opt{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px 4px;font-size:15px;font-weight:700;text-align:center}
+  .opt small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+  .opt[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-soft)}
+  .num{font-family:"M PLUS 1 Code",ui-monospace,monospace}
+  .row{display:grid;grid-template-columns:1fr 6.5em;gap:8px}
+  input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0;width:100%}
+  textarea{resize:none;height:64px}
+  .toggle{display:flex;align-items:center;gap:10px;font-size:14px}
+  .toggle input{width:22px;height:22px;accent-color:var(--shu)}
+  :focus-visible{outline:2px solid var(--shu);outline-offset:2px}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+  .bar-in{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+  .preview{font-size:12.5px;color:var(--muted);text-align:center;margin:0}
+  .send{background:var(--shu);color:#fff;border:none;border-radius:14px;padding:15px;font-weight:700;font-size:16px;letter-spacing:.06em;width:100%}
+  .send:disabled{opacity:.45;cursor:default}
+  .ghost{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px;font-weight:700;width:100%}
+  .notice{background:var(--card);border:1.5px dashed var(--gold);border-radius:12px;padding:10px 12px;font-size:13.5px}
+  .big{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding-top:48px}
+  .stamp{width:120px;height:120px;border:5px solid var(--shu);border-radius:50%;color:var(--shu);display:grid;place-items:center;font-family:"Dela Gothic One",sans-serif;font-size:28px;transform:rotate(-12deg)}
+  .head{background:var(--green);color:var(--green-ink);border-radius:14px;padding:14px 16px}
+  .head small{display:block;font-size:12px;opacity:.85}
+  .head b{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:22px}
+  .cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .wd{font-size:11px;color:var(--muted);text-align:center}
+  .wd:first-child{color:var(--shu)}
+  .day{aspect-ratio:1;max-width:100%;border-radius:8px;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10.5px;line-height:1.2;color:var(--muted);min-width:0}
+  .day b{font-family:"M PLUS 1 Code",monospace;font-size:10.5px;color:var(--shu)}
+  .day.l1{background:var(--shu-soft)}
+  .day.l2{background:var(--shu);color:var(--green-ink)}
+  .day.l2 b{color:var(--green-ink)}
+  .day.today{outline:2px solid var(--ink);outline-offset:-2px}
+  .day.blank{background:none}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;font-size:11.5px;color:var(--muted)}
+  .stats b{display:block;font-size:17px;color:var(--ink);font-family:"M PLUS 1 Code",monospace}
+  .list{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
+  .list div{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .list div:last-child{border-bottom:none}
+  .list span:last-child{color:var(--muted);font-size:12.5px;white-space:nowrap}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="notice" id="notice" hidden style="margin:16px"></div>
+
+<!-- 記録の入力 -->
+<main id="form" hidden>
+  <div>
+    <h1>今日の努力を預ける</h1>
+    <p class="sub">送ると、結果カードがあなたの発言として1通だけ流れます</p>
+  </div>
+  <div class="field">
+    <span class="label">なにを頑張った?</span>
+    <div class="chips" id="cats"></div>
+  </div>
+  <div class="field">
+    <span class="label">どれくらい?</span>
+    <div class="grid3" id="levels">
+      <button type="button" class="opt" data-v="1" aria-pressed="false">ちょっと<small>30分¥50〜</small></button>
+      <button type="button" class="opt" data-v="2" aria-pressed="true">けっこう<small>30分¥120〜</small></button>
+      <button type="button" class="opt" data-v="3" aria-pressed="false">めちゃくちゃ<small>30分¥250〜</small></button>
+    </div>
+  </div>
+  <div class="field">
+    <span class="label">時間</span>
+    <div class="grid3" id="mins"></div>
+  </div>
+  <div class="field">
+    <label class="label" for="qty">数値(任意)</label>
+    <div class="row">
+      <input id="qty" type="number" inputmode="decimal" min="0" step="any" placeholder="例:60">
+      <select id="unit" aria-label="単位"><option>kg</option><option>回</option><option>km</option><option>ページ</option><option>問</option><option>個</option><option>歩</option><option>セット</option></select>
+    </div>
+  </div>
+  <div class="field">
+    <label class="label" for="memo">ひとこと(任意)</label>
+    <textarea id="memo" maxlength="80" placeholder="例:雨だったけどジムへ行った"></textarea>
+  </div>
+  <label class="toggle"><input id="tough" type="checkbox"> 今日はしんどい日だった(+¥100)</label>
+  <div class="bar"><div class="bar-in">
+    <p class="preview" id="preview"></p>
+    <button class="send" id="send" type="button" disabled>準備中…</button>
+  </div></div>
+</main>
+
+<!-- えらい! -->
+<section id="cheer" hidden>
+  <div class="big">
+    <div class="stamp">えらい</div>
+    <h1 id="cheerTitle">えらい!を送っています…</h1>
+    <p class="sub" id="cheerSub">グループには流れません</p>
+  </div>
+  <button class="ghost" id="cheerClose" type="button" hidden>閉じる</button>
+</section>
+
+<!-- カレンダー -->
+<section id="calendar" hidden>
+  <div class="head"><small id="calName">努力カレンダー</small><b id="calMonth"></b></div>
+  <div class="cal" id="calGrid"></div>
+  <div class="stats" id="calStats"></div>
+  <p class="sub" id="calGoal"></p>
+  <div class="field">
+    <span class="label">届いた えらい!</span>
+    <div class="list" id="calCheers"></div>
+  </div>
+  <button class="ghost" id="calClose" type="button">閉じる</button>
+</section>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  // ▼ 2か所を書き換えてください
+  const LIFF_ID = 'ここにLIFF_IDを入れる';
+  const API_URL = 'ここにApps ScriptのウェブアプリURLを入れる';
+
+  const CATS = ['勉強','運動','家事','仕事','早起き','がまん','その他'];
+  const MINS = [['15分',15],['30分',30],['45分',45],['1時間',60],['1時間半',90],['2時間',120]];
+  const BASE = {1:50,2:120,3:250};
+  const state = {cat:null, level:2, min:30};
+  const $ = id => document.getElementById(id);
+  const yen = n => Math.round(n).toLocaleString('ja-JP');
+  let ready = false;
+
+  function notice(msg){ $('notice').textContent = msg; $('notice').hidden = !msg; }
+  function show(id){ ['form','cheer','calendar'].forEach(x => $(x).hidden = x !== id); }
+
+  async function api(action, extra){
+    const res = await fetch(API_URL + '?api=1', { method: 'POST', body: JSON.stringify(Object.assign({ action, token: liff.getAccessToken() }, extra || {})) });
+    const data = await res.json();
+    if (!data.ok && !data.self) throw new Error(data.error || 'うまくいきませんでした');
+    return data;
+  }
+
+  /* ---- 記録の入力 ---- */
+  function chip(label, pressed, onClick, cls){
+    const b = document.createElement('button');
+    b.type='button'; b.className=cls; b.textContent=label; b.setAttribute('aria-pressed', pressed);
+    b.addEventListener('click', onClick); return b;
+  }
+  function renderForm(){
+    $('cats').replaceChildren(...CATS.map(c => chip(c, state.cat===c, () => {state.cat=c; renderForm();}, 'chip')));
+    $('mins').replaceChildren(...MINS.map(m => chip(m[0], state.min===m[1], () => {state.min=m[1]; renderForm();}, 'opt num')));
+    document.querySelectorAll('#levels .opt').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v===state.level));
+    const tf = Math.min(3, Math.max(.5, state.min/30));
+    let est = Math.round(BASE[state.level]*tf) + ($('tough').checked ? 100 : 0);
+    est = Math.max(10, Math.round(est/10)*10);
+    $('preview').textContent = state.cat ? `この内容なら ¥${yen(est)}〜(連続ボーナスは送ったあとに加算)` : 'まず「なにを頑張った?」を選んでください';
+    if (ready) { $('send').disabled = !state.cat; $('send').textContent = 'トークに送る'; }
+  }
+  document.querySelectorAll('#levels .opt').forEach(b => b.addEventListener('click', () => {state.level=+b.dataset.v; renderForm();}));
+  $('tough').addEventListener('change', renderForm);
+
+  $('send').addEventListener('click', async () => {
+    if (!state.cat) return;
+    $('send').disabled = true; $('send').textContent = '計算中…';
+    notice('');
+    try {
+      const q = $('qty').value.trim();
+      const ctx = liff.getContext() || {};
+      const data = await api('record', {
+        cat: state.cat, level: state.level, min: state.min,
+        qty: q === '' ? null : Number(q), unit: $('unit').value,
+        tough: $('tough').checked, memo: $('memo').value,
+        chatId: ctx.groupId || ctx.roomId || ''
+      });
+      $('send').textContent = '送信中…';
+      await liff.sendMessages([data.message]);
+      liff.closeWindow();
+    } catch (e) {
+      notice('送れませんでした。グループのトークから開き直して、もう一度お試しください。(' + (e && e.message ? e.message : e) + ')');
+      $('send').disabled = false; $('send').textContent = 'トークに送る';
+    }
+  });
+
+  /* ---- えらい! ---- */
+  async function runCheer(recId){
+    show('cheer');
+    try {
+      const d = await api('cheer', { recId });
+      if (d.self) { $('cheerTitle').textContent = '自分の記録には押せません'; $('cheerSub').textContent = '仲間の記録に押してあげてください'; }
+      else if (d.already) { $('cheerTitle').textContent = d.toName + 'さんには もう押しています'; $('cheerSub').textContent = 'この記録への えらい! は ' + d.count + '人'; }
+      else { $('cheerTitle').textContent = d.toName + 'さんに えらい! を送りました'; $('cheerSub').textContent = 'この記録への えらい! は ' + d.count + '人目。グループには流れません'; setTimeout(() => liff.closeWindow(), 1800); }
+    } catch (e) {
+      $('cheerTitle').textContent = '送れませんでした'; $('cheerSub').textContent = e.message || String(e);
+    }
+    $('cheerClose').hidden = false;
+  }
+  $('cheerClose').addEventListener('click', () => liff.closeWindow());
+
+  /* ---- カレンダー ---- */
+  async function runCalendar(){
+    show('calendar');
+    $('calMonth').textContent = '読み込み中…';
+    try {
+      const d = await api('calendar');
+      $('calName').textContent = d.name + 'さんの努力カレンダー';
+      $('calMonth').textContent = d.year + '年' + d.month + '月';
+      const grid = $('calGrid'); grid.replaceChildren();
+      '日月火水木金土'.split('').forEach(w => { const e = document.createElement('div'); e.className='wd'; e.textContent=w; grid.append(e); });
+      const startDow = new Date(d.year, d.month - 1, 1).getDay();
+      const last = new Date(d.year, d.month, 0).getDate();
+      for (let i=0;i<startDow;i++){ const e=document.createElement('div'); e.className='day blank'; grid.append(e); }
+      let recDays=0,total=0,best=null;
+      for (let day=1; day<=last; day++){
+        const amt = d.days[day] || 0;
+        const e = document.createElement('div');
+        e.className = 'day' + (amt>=500?' l2':amt>0?' l1':'') + (day===d.today?' today':'');
+        e.append(document.createTextNode(day));
+        if (amt){ const b=document.createElement('b'); b.textContent = amt>=1000 ? (Math.round(amt/100)/10)+'k' : amt; e.append(b); recDays++; total+=amt; if(!best||amt>best.amt) best={day,amt}; }
+        grid.append(e);
+      }
+      $('calStats').innerHTML = '';
+      [['記録した日', recDays+'日'], ['今月の合計', '¥'+yen(total)], ['いちばんの日', best ? d.month+'/'+best.day : '-']].forEach(([k,v]) => {
+        const e=document.createElement('div'); const b=document.createElement('b'); b.textContent=v; e.append(b, document.createTextNode(k)); $('calStats').append(e);
+      });
+      $('calGoal').textContent = '残高 ¥' + yen(d.balance) + ' ・ 連続' + d.streak + '日' +
+        (d.goal ? ' ・ 目標「' + d.goal.name + '」まで ' + Math.min(100, Math.round(d.balance / d.goal.price * 100)) + '%' : '');
+      const list = $('calCheers'); list.replaceChildren();
+      if (!d.cheers.length){ const e=document.createElement('div'); e.textContent='まだ届いていません'; list.append(e); }
+      d.cheers.forEach(c => { const e=document.createElement('div'); const a=document.createElement('span'); a.textContent = c.from + 'さん(' + c.cat + 'の記録)'; const t=document.createElement('span'); t.textContent=c.at; e.append(a,t); list.append(e); });
+    } catch (e) {
+      $('calMonth').textContent = '読み込めませんでした'; notice(e.message || String(e));
+    }
+  }
+  $('calClose').addEventListener('click', () => liff.closeWindow());
+
+  /* ---- 起動 ---- */
+  liff.init({ liffId: LIFF_ID }).then(() => {
+    if (!liff.isInClient()) { notice('この画面はLINEの中で開いてください。'); return; }
+    const p = new URLSearchParams(location.search);
+    if (p.get('cheer')) { runCheer(p.get('cheer')); return; }
+    if (p.get('view') === 'calendar') { runCalendar(); return; }
+    show('form'); renderForm();
+    const ctx = liff.getContext();
+    if (!ctx || !['group','room','utou'].includes(ctx.type)) { notice('トークの中から開いたときだけ送れます。グループのボタンやアナウンスから開いてください。'); return; }
+    ready = true; renderForm();
+  }).catch(e => {
+    notice('起動できませんでした。LIFF ID の設定を確認してください。(' + (e && e.message ? e.message : e) + ')');
+  });
+</script>
+</body>
+</html>
