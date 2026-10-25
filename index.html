@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Effort Bank きろく</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1+Code:wght@400;600&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<style>
+  :root{--paper:#eef3ef;--card:#fbfdfb;--ink:#1d2925;--muted:#62736c;--line:#d3ddd7;--green:#1f5847;--green-ink:#f1f6f2;--shu:#cf412b;--shu-soft:#f7ded8;--gold:#c9a95a}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;font-size:15px;line-height:1.6}
+  main{max-width:480px;margin:0 auto;padding:16px 16px calc(120px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:18px}
+  h1{margin:0;font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:20px}
+  .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+  .field{display:flex;flex-direction:column;gap:8px}
+  .label{font-size:12px;color:var(--muted);letter-spacing:.08em}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  button{font:inherit;color:inherit;cursor:pointer}
+  .chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:15px}
+  .chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--green-ink)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .opt{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px 4px;font-size:15px;font-weight:700;text-align:center}
+  .opt small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+  .opt[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-soft)}
+  .num{font-family:"M PLUS 1 Code",ui-monospace,monospace}
+  .row{display:grid;grid-template-columns:1fr 6.5em;gap:8px}
+  input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0;width:100%}
+  textarea{resize:none;height:64px}
+  .toggle{display:flex;align-items:center;gap:10px;font-size:14px}
+  .toggle input{width:22px;height:22px;accent-color:var(--shu)}
+  :focus-visible{outline:2px solid var(--shu);outline-offset:2px}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+  .bar-in{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+  .preview{font-size:12.5px;color:var(--muted);text-align:center;margin:0}
+  .send{background:var(--shu);color:#fff;border:none;border-radius:14px;padding:15px;font-weight:700;font-size:16px;letter-spacing:.06em}
+  .send:disabled{opacity:.45;cursor:default}
+  .notice{background:var(--card);border:1.5px dashed var(--gold);border-radius:12px;padding:10px 12px;font-size:13.5px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>今日の努力を預ける</h1>
+    <p class="sub">選んで送ると、あなたの発言としてトークに流れます</p>
+  </div>
+  <div class="notice" id="notice" hidden></div>
+
+  <div class="field">
+    <span class="label">なにを頑張った?</span>
+    <div class="chips" id="cats"></div>
+  </div>
+
+  <div class="field">
+    <span class="label">どれくらい?</span>
+    <div class="grid3" id="levels">
+      <button type="button" class="opt" data-v="ちょっと" aria-pressed="false">ちょっと<small>30分¥50〜</small></button>
+      <button type="button" class="opt" data-v="けっこう" aria-pressed="true">けっこう<small>30分¥120〜</small></button>
+      <button type="button" class="opt" data-v="めちゃくちゃ" aria-pressed="false">めちゃくちゃ<small>30分¥250〜</small></button>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="label">時間</span>
+    <div class="grid6" id="mins"></div>
+  </div>
+
+  <div class="field">
+    <label class="label" for="qty">数値(任意)</label>
+    <div class="row">
+      <input id="qty" type="number" inputmode="decimal" min="0" step="any" placeholder="例:60">
+      <select id="unit" aria-label="単位"><option>kg</option><option>回</option><option>km</option><option>ページ</option><option>問</option><option>個</option><option>歩</option><option>セット</option></select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label" for="memo">ひとこと(任意)</label>
+    <textarea id="memo" maxlength="80" placeholder="例:雨だったけどジムへ行った"></textarea>
+  </div>
+
+  <label class="toggle"><input id="tough" type="checkbox"> 今日はしんどい日だった(+¥100)</label>
+</main>
+
+<div class="bar"><div class="bar-in">
+  <p class="preview" id="preview"></p>
+  <button class="send" id="send" type="button" disabled>準備中…</button>
+</div></div>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  // ▼ LINE Developers で発行された LIFF ID に書き換えてください
+  const LIFF_ID = 'ここにLIFF_IDを入れる';
+
+  const CATS = ['勉強','運動','家事','仕事','早起き','がまん','その他'];
+  const MINS = [['15分',15],['30分',30],['45分',45],['1時間',60],['1時間半',90],['2時間',120]];
+  const BASE = {'ちょっと':50,'けっこう':120,'めちゃくちゃ':250};
+  const state = {cat:null, level:'けっこう', min:30};
+  const $ = id => document.getElementById(id);
+
+  function chip(label, pressed, onClick, cls){
+    const b = document.createElement('button');
+    b.type='button'; b.className=cls; b.textContent=label; b.setAttribute('aria-pressed', pressed);
+    b.addEventListener('click', onClick); return b;
+  }
+  function render(){
+    $('cats').replaceChildren(...CATS.map(c => chip(c, state.cat===c, () => {state.cat=c; render();}, 'chip')));
+    $('mins').replaceChildren(...MINS.map(m => {
+      const b = chip(m[0], state.min===m[1], () => {state.min=m[1]; render();}, 'opt num'); return b;
+    }));
+    document.querySelectorAll('#levels .opt').forEach(b => b.setAttribute('aria-pressed', b.dataset.v===state.level));
+    const tf = Math.min(3, Math.max(.5, state.min/30));
+    let est = Math.round(BASE[state.level]*tf) + ($('tough').checked ? 100 : 0);
+    est = Math.max(10, Math.round(est/10)*10);
+    $('preview').textContent = state.cat ? `この内容なら ¥${est.toLocaleString('ja-JP')}〜(連続ボーナスは送ったあとに加算)` : 'まず「なにを頑張った?」を選んでください';
+    if (ready) { $('send').disabled = !state.cat; $('send').textContent = 'トークに送る'; }
+  }
+  document.querySelectorAll('#levels .opt').forEach(b => b.addEventListener('click', () => {state.level=b.dataset.v; render();}));
+  $('tough').addEventListener('change', render);
+
+  function buildText(){
+    const parts = [state.cat, state.level, state.min + '分'];
+    const q = $('qty').value.trim();
+    if (q !== '' && isFinite(Number(q)) && Number(q) >= 0) parts.push(Number(q) + $('unit').value);
+    if ($('tough').checked) parts.push('しんどい');
+    const memo = $('memo').value.replace(/\s+/g,' ').trim();
+    return '【きろく】' + parts.join(' ') + (memo ? ' ' + memo : '');
+  }
+  function notice(msg){ $('notice').textContent = msg; $('notice').hidden = !msg; }
+
+  let ready = false;
+  $('send').addEventListener('click', async () => {
+    if (!state.cat) return;
+    $('send').disabled = true; $('send').textContent = '送信中…';
+    try {
+      await liff.sendMessages([{ type: 'text', text: buildText() }]);
+      liff.closeWindow();
+    } catch (e) {
+      notice('送れませんでした。グループのトークから開き直して、もう一度お試しください。(' + (e && e.message ? e.message : e) + ')');
+      $('send').disabled = false; $('send').textContent = 'トークに送る';
+    }
+  });
+
+  render();
+  liff.init({ liffId: LIFF_ID }).then(() => {
+    if (!liff.isInClient()) { notice('この画面はLINEの中で開いてください。グループのボタンやリンクから開くと使えます。'); return; }
+    const ctx = liff.getContext();
+    if (!ctx || !['group','room','utou'].includes(ctx.type)) { notice('トークの中から開いたときだけ送れます。グループのボタンから開いてください。'); return; }
+    ready = true; render();
+  }).catch(e => {
+    notice('起動できませんでした。LIFF ID の設定を確認してください。(' + (e && e.message ? e.message : e) + ')');
+  });
+</script>
+</body>
+</html>
