@@ -68,6 +68,10 @@
   .mini.go{border-color:var(--shu);color:var(--shu)}
   .mini.confirm{background:var(--shu);border-color:var(--shu);color:#fff}
   .mini:disabled{opacity:.45}
+  .mini.del{border:none;background:none;color:var(--muted);font-weight:400;margin-left:auto;padding:6px 4px}
+  .mini.del.confirm{background:var(--shu);color:#fff;border-radius:999px;padding:6px 14px}
+  .link-del{border:none;background:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:4px;align-self:center}
+  .link-del.confirm{color:var(--shu);font-weight:700}
   .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
 
   .cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
@@ -143,8 +147,10 @@
   <div id="tmActive" hidden style="display:flex;flex-direction:column;gap:18px">
     <div class="head"><small>みんなで貯める チーム目標</small><b id="tmName"></b><span id="tmSub" style="font-size:13px"></span><div class="meter"><i id="tmBar"></i></div></div>
     <div class="field"><span class="label" id="tmMembersLabel">みんなの内訳</span><div class="list" id="tmMembers"></div></div>
-    <p class="sub">個人の残高は減りません。チーム目標を決めた日からの、みんなの努力の合計です。</p>
+    <p class="sub">個人の残高は減りません。チーム目標を決めた日からの、このグループでの努力の合計です。</p>
+    <button class="link-del" id="tmDel" type="button" hidden>このチーム目標を取り消す</button>
   </div>
+  <p class="notice" id="tmNoGroup" hidden style="margin:0">チーム目標はグループごとです。グループで「リンク」と送ると出る、グループ専用のリンクから開いてください。</p>
   <div id="tmNew" hidden style="display:flex;flex-direction:column;gap:18px">
     <div class="head gold" id="tmLast" hidden><small>前回のチーム目標</small><b id="tmLastName"></b></div>
     <div class="box">
@@ -187,13 +193,27 @@
   const $ = id => document.getElementById(id);
   const yen = n => Math.round(n).toLocaleString('ja-JP');
   let canSend = false, booted = false;
+  const G = new URLSearchParams(location.search).get('g') || '';   // グループ専用リンクのコード
+  const DATA = {};             // まとめて読み込んだ中身(タブを切り替えたらすぐ出す)
+  let loading = null;
 
   function notice(msg){ $('notice').textContent = msg || ''; $('notice').hidden = !msg; }
   function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
-  function chatId(){ const c = liff.getContext() || {}; return c.groupId || c.roomId || ''; }
+  function chatId(){ const c = (liff.getContext && liff.getContext()) || {}; return c.groupId || c.roomId || ''; }
+  /** ごほうび・チーム・カレンダーをまとめて1回で読み込む */
+  function loadAll(){
+    loading = api('bundle').then(d => { DATA.rewards = d.rewards; DATA.team = d.team; DATA.calendar = d.calendar; loading = null; return d; })
+      .catch(e => { loading = null; throw e; });
+    return loading;
+  }
+  async function getData(key){
+    if (DATA[key]) return DATA[key];
+    await (loading || loadAll());
+    return DATA[key];
+  }
 
   async function api(action, extra){
-    const res = await fetch(API_URL + '?api=1', { method: 'POST', body: JSON.stringify(Object.assign({ action, token: liff.getAccessToken() }, extra || {})) });
+    const res = await fetch(API_URL + '?api=1', { method: 'POST', body: JSON.stringify(Object.assign({ action, token: liff.getAccessToken(), g: G, chatId: chatId() }, extra || {})) });
     const data = await res.json();
     if (!data.ok && !data.self) throw new Error(data.error || 'うまくいきませんでした');
     return data;
@@ -253,11 +273,12 @@
   });
 
   /* ---- ごほうび ---- */
-  let confirmName = null;
+  let confirmName = null, confirmDel = null;
+  async function refreshRewards(){ DATA.rewards = await api('rewards'); loadRewards(); }
   async function loadRewards(){
-    $('rwBal').textContent = '読み込み中…';
+    if (!DATA.rewards) $('rwBal').textContent = '読み込み中…';
     try {
-      const d = await api('rewards');
+      const d = await getData('rewards');
       $('rwName').textContent = d.name + 'さんの残高';
       $('rwBal').textContent = '¥' + yen(d.balance);
       const g = d.list.find(r => r.goal);
@@ -276,18 +297,29 @@
         ex.type = 'button'; ex.disabled = d.balance < r.price;
         ex.addEventListener('click', () => exchange(r.name));
         act.append(ex);
+        const del = el('button', 'mini del' + (confirmDel === r.name ? ' confirm' : ''), confirmDel === r.name ? '本当に削除する' : '削除');
+        del.type = 'button';
+        del.addEventListener('click', () => removeReward(r.name));
+        act.append(del);
         card.append(top, m, act); box.append(card);
       });
     } catch (e) { $('rwBal').textContent = '読み込めませんでした'; notice(e.message || String(e)); }
   }
   async function setGoal(name){
-    try { await api('rewardGoal', { name }); confirmName = null; loadRewards(); } catch (e) { notice(e.message || String(e)); }
+    try { await api('rewardGoal', { name }); confirmName = null; confirmDel = null; await refreshRewards(); } catch (e) { notice(e.message || String(e)); }
   }
   async function exchange(name){
+    confirmDel = null;
     if (confirmName !== name) { confirmName = name; loadRewards(); return; }
     confirmName = null;
-    try { const d = await api('rewardExchange', { name, chatId: chatId() }); if (!(await sendCard(d.message))) loadRewards(); }
+    try { const d = await api('rewardExchange', { name }); if (!(await sendCard(d.message))) await refreshRewards(); }
     catch (e) { notice(e.message || String(e)); loadRewards(); }
+  }
+  async function removeReward(name){
+    confirmName = null;
+    if (confirmDel !== name) { confirmDel = name; loadRewards(); return; }
+    confirmDel = null;
+    try { await api('rewardDelete', { name }); await refreshRewards(); } catch (e) { notice(e.message || String(e)); }
   }
   $('rwAdd').addEventListener('click', async () => {
     const name = $('rwNew').value.trim(), price = Number($('rwPrice').value);
@@ -297,16 +329,22 @@
     try {
       const d = await api('rewardAdd', { name, price, makeGoal: $('rwMakeGoal').checked });
       $('rwNew').value = ''; $('rwPrice').value = '';
-      if (!(await sendCard(d.message))) loadRewards();
+      if (!(await sendCard(d.message))) await refreshRewards();
     } catch (e) { notice(e.message || String(e)); }
     $('rwAdd').disabled = false;
   });
 
   /* ---- チーム ---- */
+  let confirmTeamDel = false;
+  async function refreshTeam(){ DATA.team = await api('team'); loadTeam(); }
   async function loadTeam(){
     try {
-      const d = await api('team');
-      $('tmActive').hidden = !d.active; $('tmNew').hidden = !!d.active;
+      const d = await getData('team');
+      $('tmNoGroup').hidden = d.hasGroup || !!d.active;
+      $('tmActive').hidden = !d.active; $('tmNew').hidden = !!d.active || !d.hasGroup;
+      $('tmDel').hidden = !(d.active && d.active.canDelete);
+      $('tmDel').textContent = confirmTeamDel ? '本当に取り消す(元に戻せません)' : 'このチーム目標を取り消す';
+      $('tmDel').classList.toggle('confirm', confirmTeamDel);
       if (d.active) {
         const a = d.active, pct = Math.min(100, Math.round(a.total / a.price * 100));
         $('tmName').textContent = a.name;
@@ -326,16 +364,22 @@
     if (!name) { notice('チーム目標の名前を入れてください。'); return; }
     if (!(price >= 100)) { notice('金額は100円以上で入れてください。'); return; }
     $('tmSet').disabled = true;
-    try { const d = await api('teamSet', { name, price }); if (!(await sendCard(d.message))) loadTeam(); }
+    try { const d = await api('teamSet', { name, price }); if (!(await sendCard(d.message))) await refreshTeam(); }
     catch (e) { notice(e.message || String(e)); }
     $('tmSet').disabled = false;
   });
 
+  $('tmDel').addEventListener('click', async () => {
+    if (!confirmTeamDel) { confirmTeamDel = true; loadTeam(); return; }
+    confirmTeamDel = false;
+    try { await api('teamDelete'); await refreshTeam(); } catch (e) { notice(e.message || String(e)); loadTeam(); }
+  });
+
   /* ---- カレンダー ---- */
   async function loadCalendar(){
-    $('calMonth').textContent = '読み込み中…';
+    if (!DATA.calendar) $('calMonth').textContent = '読み込み中…';
     try {
-      const d = await api('calendar');
+      const d = await getData('calendar');
       $('calName').textContent = d.name + 'さんの努力カレンダー';
       $('calMonth').textContent = d.year + '年' + d.month + '月';
       const grid = $('calGrid'); grid.replaceChildren();
@@ -386,6 +430,7 @@
     const p = new URLSearchParams(location.search);
     if (p.get('cheer')) { runCheer(p.get('cheer')); return; }
     const v = p.get('view');
+    loadAll().catch(() => {});   // 裏でまとめて読み込んでおく
     show(['rewards','team','calendar'].includes(v) ? v : 'record');
     if (!canSend) notice('トークの中から開いたときだけ、カードを流せます。');
   }).catch(e => {
