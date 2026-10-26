@@ -7,19 +7,27 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1+Code:wght@400;600&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
 <style>
-  :root{--paper:#eef3ef;--card:#fbfdfb;--ink:#1d2925;--muted:#62736c;--line:#d3ddd7;--green:#1f5847;--green-ink:#f1f6f2;--shu:#cf412b;--shu-soft:#f7ded8;--gold:#c9a95a}
+  :root{--paper:#eef3ef;--card:#fbfdfb;--ink:#1d2925;--muted:#62736c;--line:#d3ddd7;--green:#1f5847;--green-ink:#f1f6f2;--shu:#cf412b;--shu-soft:#f7ded8;--gold:#c9a95a;--gold-soft:#f4ead2}
   *{box-sizing:border-box}
   html,body{overflow-x:hidden;overscroll-behavior-x:none}
-  input,select,textarea{font-size:16px!important}
   html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;font-size:15px;line-height:1.6}
-  main,section{max-width:480px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:18px}
-  #form{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+  button{font:inherit;color:inherit;cursor:pointer}
+  input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0;width:100%}
+  input,select,textarea{font-size:16px!important}
+  textarea{resize:none;height:64px}
+  :focus-visible{outline:2px solid var(--shu);outline-offset:2px}
+  [hidden]{display:none!important}
+
+  .tabs{position:sticky;top:0;z-index:5;background:var(--paper);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 12px 8px;border-bottom:1px solid var(--line)}
+  .tab{border:none;background:none;border-radius:10px;padding:8px 2px;font-size:13.5px;color:var(--muted)}
+  .tab[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(29,41,37,.12)}
+  .view{max-width:480px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:18px}
+  #v-record{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}
   h1{margin:0;font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:20px}
   .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
   .field{display:flex;flex-direction:column;gap:8px}
   .label{font-size:12px;color:var(--muted);letter-spacing:.08em}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
-  button{font:inherit;color:inherit;cursor:pointer}
   .chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:15px}
   .chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--green-ink)}
   .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -27,24 +35,41 @@
   .opt small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
   .opt[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-soft)}
   .num{font-family:"M PLUS 1 Code",ui-monospace,monospace}
-  .row{display:grid;grid-template-columns:1fr 6.5em;gap:8px}
-  input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0;width:100%}
-  textarea{resize:none;height:64px}
+  .row2{display:grid;grid-template-columns:1fr 6.5em;gap:8px}
   .toggle{display:flex;align-items:center;gap:10px;font-size:14px}
   .toggle input{width:22px;height:22px;accent-color:var(--shu)}
-  :focus-visible{outline:2px solid var(--shu);outline-offset:2px}
   .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
   .bar-in{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
   .preview{font-size:12.5px;color:var(--muted);text-align:center;margin:0}
-  .send{background:var(--shu);color:#fff;border:none;border-radius:14px;padding:15px;font-weight:700;font-size:16px;letter-spacing:.06em;width:100%}
+  .send{background:var(--shu);color:#fff;border:none;border-radius:14px;padding:15px;font-weight:700;font-size:16px;letter-spacing:.04em;width:100%}
   .send:disabled{opacity:.45;cursor:default}
   .ghost{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px;font-weight:700;width:100%}
-  .notice{background:var(--card);border:1.5px dashed var(--gold);border-radius:12px;padding:10px 12px;font-size:13.5px}
-  .big{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding-top:48px}
-  .stamp{width:120px;height:120px;border:5px solid var(--shu);border-radius:50%;color:var(--shu);display:grid;place-items:center;font-family:"Dela Gothic One",sans-serif;font-size:28px;transform:rotate(-12deg)}
-  .head{background:var(--green);color:var(--green-ink);border-radius:14px;padding:14px 16px}
-  .head small{display:block;font-size:12px;opacity:.85}
-  .head b{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:22px}
+  .notice{background:var(--card);border:1.5px dashed var(--gold);border-radius:12px;padding:10px 12px;font-size:13.5px;margin:12px 16px 0}
+
+  .head{background:var(--green);color:var(--green-ink);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+  .head small{font-size:12px;opacity:.85}
+  .head b{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:22px;line-height:1.3}
+  .head.gold{background:var(--gold-soft);color:var(--ink)}
+  .meter{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+  .meter i{display:block;height:100%;background:var(--shu);border-radius:4px}
+  .meter.g i{background:var(--green)}
+  .head .meter{background:rgba(241,246,242,.28)}
+  .head .meter i{background:var(--gold)}
+
+  .cards{display:flex;flex-direction:column;gap:10px}
+  .rw{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+  .rw.goal{border:2px solid var(--gold)}
+  .rw-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .rw-name{font-weight:700;min-width:0;overflow-wrap:anywhere}
+  .rw-price{font-family:"M PLUS 1 Code",monospace;font-size:13px;color:var(--muted);white-space:nowrap}
+  .tag{font-size:11px;background:var(--gold);color:#2a2410;border-radius:4px;padding:0 6px;font-weight:700;margin-left:6px}
+  .rw-act{display:flex;gap:8px;flex-wrap:wrap}
+  .mini{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700}
+  .mini.go{border-color:var(--shu);color:var(--shu)}
+  .mini.confirm{background:var(--shu);border-color:var(--shu);color:#fff}
+  .mini:disabled{opacity:.45}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+
   .cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
   .wd{font-size:11px;color:var(--muted);text-align:center}
   .wd:first-child{color:var(--shu)}
@@ -60,46 +85,39 @@
   .list{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
   .list div{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
   .list div:last-child{border-bottom:none}
-  .list span:last-child{color:var(--muted);font-size:12.5px;white-space:nowrap}
-  [hidden]{display:none!important}
+  .list span:last-child{color:var(--muted);font-size:12.5px;white-space:nowrap;font-family:"M PLUS 1 Code",monospace}
+  .big{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding-top:48px}
+  .stamp{width:120px;height:120px;border:5px solid var(--shu);border-radius:50%;color:var(--shu);display:grid;place-items:center;font-family:"Dela Gothic One",sans-serif;font-size:28px;transform:rotate(-12deg)}
 </style>
 </head>
 <body>
-<div class="notice" id="notice" hidden style="margin:16px"></div>
+<nav class="tabs" id="tabs" role="tablist" hidden>
+  <button class="tab" role="tab" data-v="record" aria-selected="true">きろく</button>
+  <button class="tab" role="tab" data-v="rewards" aria-selected="false">ごほうび</button>
+  <button class="tab" role="tab" data-v="team" aria-selected="false">チーム</button>
+  <button class="tab" role="tab" data-v="calendar" aria-selected="false">カレンダー</button>
+</nav>
+<div class="notice" id="notice" hidden></div>
 
-<!-- 記録の入力 -->
-<main id="form" hidden>
-  <div>
-    <h1>今日の努力を預ける</h1>
-    <p class="sub">送ると、結果カードがあなたの発言として1通だけ流れます</p>
-  </div>
-  <div class="field">
-    <span class="label">なにを頑張った?</span>
-    <div class="chips" id="cats"></div>
-  </div>
-  <div class="field">
-    <span class="label">どれくらい?</span>
+<!-- きろく -->
+<main class="view" id="v-record" hidden>
+  <div><h1>今日の努力を預ける</h1><p class="sub">送ると、結果カードがあなたの発言として1通だけ流れます</p></div>
+  <div class="field"><span class="label">なにを頑張った?</span><div class="chips" id="cats"></div></div>
+  <div class="field"><span class="label">どれくらい?</span>
     <div class="grid3" id="levels">
       <button type="button" class="opt" data-v="1" aria-pressed="false">ちょっと<small>30分¥50〜</small></button>
       <button type="button" class="opt" data-v="2" aria-pressed="true">けっこう<small>30分¥120〜</small></button>
       <button type="button" class="opt" data-v="3" aria-pressed="false">めちゃくちゃ<small>30分¥250〜</small></button>
     </div>
   </div>
-  <div class="field">
-    <span class="label">時間</span>
-    <div class="grid3" id="mins"></div>
-  </div>
-  <div class="field">
-    <label class="label" for="qty">数値(任意)</label>
-    <div class="row">
+  <div class="field"><span class="label">時間</span><div class="grid3" id="mins"></div></div>
+  <div class="field"><label class="label" for="qty">数値(任意)</label>
+    <div class="row2">
       <input id="qty" type="number" inputmode="decimal" min="0" step="any" placeholder="例:60">
       <select id="unit" aria-label="単位"><option>kg</option><option>回</option><option>km</option><option>ページ</option><option>問</option><option>個</option><option>歩</option><option>セット</option></select>
     </div>
   </div>
-  <div class="field">
-    <label class="label" for="memo">ひとこと(任意)</label>
-    <textarea id="memo" maxlength="80" placeholder="例:雨だったけどジムへ行った"></textarea>
-  </div>
+  <div class="field"><label class="label" for="memo">ひとこと(任意)</label><textarea id="memo" maxlength="80" placeholder="例:雨だったけどジムへ行った"></textarea></div>
   <label class="toggle"><input id="tough" type="checkbox"> 今日はしんどい日だった(+¥100)</label>
   <div class="bar"><div class="bar-in">
     <p class="preview" id="preview"></p>
@@ -107,34 +125,60 @@
   </div></div>
 </main>
 
-<!-- えらい! -->
-<section id="cheer" hidden>
-  <div class="big">
-    <div class="stamp">えらい</div>
-    <h1 id="cheerTitle">えらい!を送っています…</h1>
-    <p class="sub" id="cheerSub">グループには流れません</p>
+<!-- ごほうび -->
+<section class="view" id="v-rewards" hidden>
+  <div class="head"><small id="rwName">あなたの残高</small><b id="rwBal">¥-</b><span id="rwGoal" style="font-size:13px"></span></div>
+  <div class="cards" id="rwList"></div>
+  <div class="box">
+    <h1 style="font-size:17px">ごほうびを登録する</h1>
+    <div class="field"><label class="label" for="rwNew">名前</label><input id="rwNew" maxlength="30" placeholder="例:コンビニスイーツ"></div>
+    <div class="field"><label class="label" for="rwPrice">金額(円)</label><input id="rwPrice" type="number" inputmode="numeric" min="10" step="10" placeholder="例:300"></div>
+    <label class="toggle"><input id="rwMakeGoal" type="checkbox" checked> これを目標にする</label>
+    <button class="send" id="rwAdd" type="button">登録してトークに送る</button>
   </div>
-  <button class="ghost" id="cheerClose" type="button" hidden>閉じる</button>
+</section>
+
+<!-- チーム -->
+<section class="view" id="v-team" hidden>
+  <div id="tmActive" hidden style="display:flex;flex-direction:column;gap:18px">
+    <div class="head"><small>みんなで貯める チーム目標</small><b id="tmName"></b><span id="tmSub" style="font-size:13px"></span><div class="meter"><i id="tmBar"></i></div></div>
+    <div class="field"><span class="label" id="tmMembersLabel">みんなの内訳</span><div class="list" id="tmMembers"></div></div>
+    <p class="sub">個人の残高は減りません。チーム目標を決めた日からの、みんなの努力の合計です。</p>
+  </div>
+  <div id="tmNew" hidden style="display:flex;flex-direction:column;gap:18px">
+    <div class="head gold" id="tmLast" hidden><small>前回のチーム目標</small><b id="tmLastName"></b></div>
+    <div class="box">
+      <h1 style="font-size:17px">チーム目標を決める</h1>
+      <p class="sub" style="margin:0">みんなの努力の合計で目指す、共通の目標です。達成するまで1つだけ。</p>
+      <div class="field"><label class="label" for="tmNewName">名前</label><input id="tmNewName" maxlength="30" placeholder="例:みんなで焼肉"></div>
+      <div class="field"><label class="label" for="tmNewPrice">金額(円)</label><input id="tmNewPrice" type="number" inputmode="numeric" min="100" step="100" placeholder="例:20000"></div>
+      <button class="send" id="tmSet" type="button">決めてトークに送る</button>
+    </div>
+  </div>
 </section>
 
 <!-- カレンダー -->
-<section id="calendar" hidden>
+<section class="view" id="v-calendar" hidden>
   <div class="head"><small id="calName">努力カレンダー</small><b id="calMonth"></b></div>
   <div class="cal" id="calGrid"></div>
   <div class="stats" id="calStats"></div>
   <p class="sub" id="calGoal"></p>
-  <div class="field">
-    <span class="label">届いた えらい!</span>
-    <div class="list" id="calCheers"></div>
-  </div>
-  <button class="ghost" id="calClose" type="button">閉じる</button>
+  <div class="field"><span class="label">届いた えらい!</span><div class="list" id="calCheers"></div></div>
+</section>
+
+<!-- えらい!(カードのボタンから) -->
+<section class="view" id="v-cheer" hidden>
+  <div class="big"><div class="stamp">えらい</div><h1 id="cheerTitle">えらい!を送っています…</h1><p class="sub" id="cheerSub">グループには流れません</p></div>
+  <button class="ghost" id="cheerClose" type="button" hidden>閉じる</button>
 </section>
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="./config.js"></script>
 <script>
-  // ▼ 2か所を書き換えてください
-  const LIFF_ID = '2012196021-wvGiNhGp';
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyRj4TDSGnadCS0f6FBGF-VHj33LpsD6UCiO-axWInXI-KdWxVxNHBQ8W56Q3Rf26Llmw/exec';
+  // LIFF ID と API_URL は config.js に書きます(index.html を入れ替えても消えないように)
+  const CFG = window.EB_CONFIG || {};
+  const LIFF_ID = CFG.LIFF_ID || '';
+  const API_URL = CFG.API_URL || '';
 
   const CATS = ['勉強','運動','家事','仕事','早起き','がまん','その他'];
   const MINS = [['15分',15],['30分',30],['45分',45],['1時間',60],['1時間半',90],['2時間',120]];
@@ -142,10 +186,11 @@
   const state = {cat:null, level:2, min:30};
   const $ = id => document.getElementById(id);
   const yen = n => Math.round(n).toLocaleString('ja-JP');
-  let ready = false;
+  let canSend = false, booted = false;
 
-  function notice(msg){ $('notice').textContent = msg; $('notice').hidden = !msg; }
-  function show(id){ ['form','cheer','calendar'].forEach(x => $(x).hidden = x !== id); }
+  function notice(msg){ $('notice').textContent = msg || ''; $('notice').hidden = !msg; }
+  function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  function chatId(){ const c = liff.getContext() || {}; return c.groupId || c.roomId || ''; }
 
   async function api(action, extra){
     const res = await fetch(API_URL + '?api=1', { method: 'POST', body: JSON.stringify(Object.assign({ action, token: liff.getAccessToken() }, extra || {})) });
@@ -153,11 +198,31 @@
     if (!data.ok && !data.self) throw new Error(data.error || 'うまくいきませんでした');
     return data;
   }
+  /** カードをトークに流す。トークの外で開いたときは送らずに知らせる */
+  async function sendCard(message){
+    if (!canSend) { notice('保存しました。カードを流すには、グループのトークから開いてください。'); return false; }
+    await liff.sendMessages([message]);
+    liff.closeWindow();
+    return true;
+  }
 
-  /* ---- 記録の入力 ---- */
+  /* ---- タブ ---- */
+  const VIEWS = ['record','rewards','team','calendar','cheer'];
+  function show(v){
+    VIEWS.forEach(x => $('v-' + x).hidden = x !== v);
+    $('tabs').hidden = v === 'cheer';
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.v === v));
+    notice('');
+    window.scrollTo(0, 0);
+    if (v === 'rewards') loadRewards();
+    if (v === 'team') loadTeam();
+    if (v === 'calendar') loadCalendar();
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => show(t.dataset.v)));
+
+  /* ---- きろく ---- */
   function chip(label, pressed, onClick, cls){
-    const b = document.createElement('button');
-    b.type='button'; b.className=cls; b.textContent=label; b.setAttribute('aria-pressed', pressed);
+    const b = el('button', cls, label); b.type = 'button'; b.setAttribute('aria-pressed', pressed);
     b.addEventListener('click', onClick); return b;
   }
   function renderForm(){
@@ -168,32 +233,134 @@
     let est = Math.round(BASE[state.level]*tf) + ($('tough').checked ? 100 : 0);
     est = Math.max(10, Math.round(est/10)*10);
     $('preview').textContent = state.cat ? `この内容なら ¥${yen(est)}〜(連続ボーナスは送ったあとに加算)` : 'まず「なにを頑張った?」を選んでください';
-    if (ready) { $('send').disabled = !state.cat; $('send').textContent = 'トークに送る'; }
+    if (booted) { $('send').disabled = !state.cat || !canSend; $('send').textContent = canSend ? 'トークに送る' : 'トークから開くと送れます'; }
   }
   document.querySelectorAll('#levels .opt').forEach(b => b.addEventListener('click', () => {state.level=+b.dataset.v; renderForm();}));
   $('tough').addEventListener('change', renderForm);
-
   $('send').addEventListener('click', async () => {
     if (!state.cat) return;
-    $('send').disabled = true; $('send').textContent = '計算中…';
-    notice('');
+    $('send').disabled = true; $('send').textContent = '計算中…'; notice('');
     try {
       const q = $('qty').value.trim();
-      const ctx = liff.getContext() || {};
-      const data = await api('record', {
-        cat: state.cat, level: state.level, min: state.min,
-        qty: q === '' ? null : Number(q), unit: $('unit').value,
-        tough: $('tough').checked, memo: $('memo').value,
-        chatId: ctx.groupId || ctx.roomId || ''
-      });
+      const d = await api('record', { cat: state.cat, level: state.level, min: state.min,
+        qty: q === '' ? null : Number(q), unit: $('unit').value, tough: $('tough').checked, memo: $('memo').value, chatId: chatId() });
       $('send').textContent = '送信中…';
-      await liff.sendMessages([data.message]);
-      liff.closeWindow();
+      await sendCard(d.message);
     } catch (e) {
-      notice('送れませんでした。グループのトークから開き直して、もう一度お試しください。(' + (e && e.message ? e.message : e) + ')');
-      $('send').disabled = false; $('send').textContent = 'トークに送る';
+      notice('送れませんでした。(' + (e.message || e) + ')');
+      renderForm();
     }
   });
+
+  /* ---- ごほうび ---- */
+  let confirmName = null;
+  async function loadRewards(){
+    $('rwBal').textContent = '読み込み中…';
+    try {
+      const d = await api('rewards');
+      $('rwName').textContent = d.name + 'さんの残高';
+      $('rwBal').textContent = '¥' + yen(d.balance);
+      const g = d.list.find(r => r.goal);
+      $('rwGoal').textContent = g ? `目標「${g.name}」まで ${Math.min(100, Math.round(d.balance / g.price * 100))}%` : '目標はまだありません';
+      const box = $('rwList'); box.replaceChildren();
+      if (!d.list.length) box.append(el('p', 'sub', 'まだごほうびがありません。下から登録してください。'));
+      d.list.forEach(r => {
+        const card = el('div', 'rw' + (r.goal ? ' goal' : ''));
+        const top = el('div', 'rw-top');
+        const nm = el('span', 'rw-name', r.name); if (r.goal) nm.append(el('span', 'tag', '目標'));
+        top.append(nm, el('span', 'rw-price', '¥' + yen(r.price) + (d.balance >= r.price ? '' : ' ・あと¥' + yen(r.price - d.balance))));
+        const m = el('div', 'meter'); const i = el('i'); i.style.width = Math.min(100, d.balance / r.price * 100) + '%'; m.append(i);
+        const act = el('div', 'rw-act');
+        if (!r.goal) { const b = el('button', 'mini', '目標にする'); b.type = 'button'; b.addEventListener('click', () => setGoal(r.name)); act.append(b); }
+        const ex = el('button', 'mini go' + (confirmName === r.name ? ' confirm' : ''), confirmName === r.name ? '本当に交換する' : '交換する');
+        ex.type = 'button'; ex.disabled = d.balance < r.price;
+        ex.addEventListener('click', () => exchange(r.name));
+        act.append(ex);
+        card.append(top, m, act); box.append(card);
+      });
+    } catch (e) { $('rwBal').textContent = '読み込めませんでした'; notice(e.message || String(e)); }
+  }
+  async function setGoal(name){
+    try { await api('rewardGoal', { name }); confirmName = null; loadRewards(); } catch (e) { notice(e.message || String(e)); }
+  }
+  async function exchange(name){
+    if (confirmName !== name) { confirmName = name; loadRewards(); return; }
+    confirmName = null;
+    try { const d = await api('rewardExchange', { name, chatId: chatId() }); if (!(await sendCard(d.message))) loadRewards(); }
+    catch (e) { notice(e.message || String(e)); loadRewards(); }
+  }
+  $('rwAdd').addEventListener('click', async () => {
+    const name = $('rwNew').value.trim(), price = Number($('rwPrice').value);
+    if (!name) { notice('ごほうびの名前を入れてください。'); return; }
+    if (!(price >= 10)) { notice('金額は10円以上で入れてください。'); return; }
+    $('rwAdd').disabled = true;
+    try {
+      const d = await api('rewardAdd', { name, price, makeGoal: $('rwMakeGoal').checked });
+      $('rwNew').value = ''; $('rwPrice').value = '';
+      if (!(await sendCard(d.message))) loadRewards();
+    } catch (e) { notice(e.message || String(e)); }
+    $('rwAdd').disabled = false;
+  });
+
+  /* ---- チーム ---- */
+  async function loadTeam(){
+    try {
+      const d = await api('team');
+      $('tmActive').hidden = !d.active; $('tmNew').hidden = !!d.active;
+      if (d.active) {
+        const a = d.active, pct = Math.min(100, Math.round(a.total / a.price * 100));
+        $('tmName').textContent = a.name;
+        $('tmSub').textContent = `¥${yen(a.total)} / ¥${yen(a.price)}(${pct}%)・${a.since}から`;
+        $('tmBar').style.width = pct + '%';
+        const list = $('tmMembers'); list.replaceChildren();
+        if (!a.members.length) { const e = el('div'); e.textContent = 'まだ誰も記録していません'; list.append(e); }
+        a.members.forEach(m => { const e = el('div'); e.append(el('span', '', m.name + 'さん'), el('span', '', '¥' + yen(m.amount))); list.append(e); });
+      } else {
+        $('tmLast').hidden = !d.last;
+        if (d.last) $('tmLastName').textContent = `「${d.last.name}」¥${yen(d.last.price)} ・ ${d.last.at}に達成`;
+      }
+    } catch (e) { notice(e.message || String(e)); }
+  }
+  $('tmSet').addEventListener('click', async () => {
+    const name = $('tmNewName').value.trim(), price = Number($('tmNewPrice').value);
+    if (!name) { notice('チーム目標の名前を入れてください。'); return; }
+    if (!(price >= 100)) { notice('金額は100円以上で入れてください。'); return; }
+    $('tmSet').disabled = true;
+    try { const d = await api('teamSet', { name, price }); if (!(await sendCard(d.message))) loadTeam(); }
+    catch (e) { notice(e.message || String(e)); }
+    $('tmSet').disabled = false;
+  });
+
+  /* ---- カレンダー ---- */
+  async function loadCalendar(){
+    $('calMonth').textContent = '読み込み中…';
+    try {
+      const d = await api('calendar');
+      $('calName').textContent = d.name + 'さんの努力カレンダー';
+      $('calMonth').textContent = d.year + '年' + d.month + '月';
+      const grid = $('calGrid'); grid.replaceChildren();
+      '日月火水木金土'.split('').forEach(w => grid.append(el('div', 'wd', w)));
+      const startDow = new Date(d.year, d.month - 1, 1).getDay();
+      const last = new Date(d.year, d.month, 0).getDate();
+      for (let i=0;i<startDow;i++) grid.append(el('div', 'day blank'));
+      let recDays=0,total=0,best=null;
+      for (let day=1; day<=last; day++){
+        const amt = d.days[day] || 0;
+        const e = el('div', 'day' + (amt>=500?' l2':amt>0?' l1':'') + (day===d.today?' today':''));
+        e.append(document.createTextNode(day));
+        if (amt){ e.append(el('b', '', amt>=1000 ? (Math.round(amt/100)/10)+'k' : String(amt))); recDays++; total+=amt; if(!best||amt>best.amt) best={day,amt}; }
+        grid.append(e);
+      }
+      $('calStats').replaceChildren(...[['記録した日', recDays+'日'], ['今月の合計', '¥'+yen(total)], ['いちばんの日', best ? d.month+'/'+best.day : '-']].map(([k,v]) => {
+        const e = el('div'); e.append(el('b', '', v), document.createTextNode(k)); return e;
+      }));
+      $('calGoal').textContent = '残高 ¥' + yen(d.balance) + ' ・ 連続' + d.streak + '日' +
+        (d.goal ? ' ・ 目標「' + d.goal.name + '」まで ' + Math.min(100, Math.round(d.balance / d.goal.price * 100)) + '%' : '');
+      const list = $('calCheers'); list.replaceChildren();
+      if (!d.cheers.length) { const e = el('div'); e.textContent = 'まだ届いていません'; list.append(e); }
+      d.cheers.forEach(c => { const e = el('div'); e.append(el('span', '', c.from + 'さん(' + c.cat + ')'), el('span', '', c.at)); list.append(e); });
+    } catch (e) { $('calMonth').textContent = '読み込めませんでした'; notice(e.message || String(e)); }
+  }
 
   /* ---- えらい! ---- */
   async function runCheer(recId){
@@ -203,60 +370,24 @@
       if (d.self) { $('cheerTitle').textContent = '自分の記録には押せません'; $('cheerSub').textContent = '仲間の記録に押してあげてください'; }
       else if (d.already) { $('cheerTitle').textContent = d.toName + 'さんには もう押しています'; $('cheerSub').textContent = 'この記録への えらい! は ' + d.count + '人'; }
       else { $('cheerTitle').textContent = d.toName + 'さんに えらい! を送りました'; $('cheerSub').textContent = 'この記録への えらい! は ' + d.count + '人目。グループには流れません'; setTimeout(() => liff.closeWindow(), 1800); }
-    } catch (e) {
-      $('cheerTitle').textContent = '送れませんでした'; $('cheerSub').textContent = e.message || String(e);
-    }
+    } catch (e) { $('cheerTitle').textContent = '送れませんでした'; $('cheerSub').textContent = e.message || String(e); }
     $('cheerClose').hidden = false;
   }
   $('cheerClose').addEventListener('click', () => liff.closeWindow());
 
-  /* ---- カレンダー ---- */
-  async function runCalendar(){
-    show('calendar');
-    $('calMonth').textContent = '読み込み中…';
-    try {
-      const d = await api('calendar');
-      $('calName').textContent = d.name + 'さんの努力カレンダー';
-      $('calMonth').textContent = d.year + '年' + d.month + '月';
-      const grid = $('calGrid'); grid.replaceChildren();
-      '日月火水木金土'.split('').forEach(w => { const e = document.createElement('div'); e.className='wd'; e.textContent=w; grid.append(e); });
-      const startDow = new Date(d.year, d.month - 1, 1).getDay();
-      const last = new Date(d.year, d.month, 0).getDate();
-      for (let i=0;i<startDow;i++){ const e=document.createElement('div'); e.className='day blank'; grid.append(e); }
-      let recDays=0,total=0,best=null;
-      for (let day=1; day<=last; day++){
-        const amt = d.days[day] || 0;
-        const e = document.createElement('div');
-        e.className = 'day' + (amt>=500?' l2':amt>0?' l1':'') + (day===d.today?' today':'');
-        e.append(document.createTextNode(day));
-        if (amt){ const b=document.createElement('b'); b.textContent = amt>=1000 ? (Math.round(amt/100)/10)+'k' : amt; e.append(b); recDays++; total+=amt; if(!best||amt>best.amt) best={day,amt}; }
-        grid.append(e);
-      }
-      $('calStats').innerHTML = '';
-      [['記録した日', recDays+'日'], ['今月の合計', '¥'+yen(total)], ['いちばんの日', best ? d.month+'/'+best.day : '-']].forEach(([k,v]) => {
-        const e=document.createElement('div'); const b=document.createElement('b'); b.textContent=v; e.append(b, document.createTextNode(k)); $('calStats').append(e);
-      });
-      $('calGoal').textContent = '残高 ¥' + yen(d.balance) + ' ・ 連続' + d.streak + '日' +
-        (d.goal ? ' ・ 目標「' + d.goal.name + '」まで ' + Math.min(100, Math.round(d.balance / d.goal.price * 100)) + '%' : '');
-      const list = $('calCheers'); list.replaceChildren();
-      if (!d.cheers.length){ const e=document.createElement('div'); e.textContent='まだ届いていません'; list.append(e); }
-      d.cheers.forEach(c => { const e=document.createElement('div'); const a=document.createElement('span'); a.textContent = c.from + 'さん(' + c.cat + 'の記録)'; const t=document.createElement('span'); t.textContent=c.at; e.append(a,t); list.append(e); });
-    } catch (e) {
-      $('calMonth').textContent = '読み込めませんでした'; notice(e.message || String(e));
-    }
-  }
-  $('calClose').addEventListener('click', () => liff.closeWindow());
-
   /* ---- 起動 ---- */
+  if (!LIFF_ID || !API_URL) notice('config.js が見つからないか、LIFF_ID / API_URL が空です。');
   liff.init({ liffId: LIFF_ID }).then(() => {
     if (!liff.isInClient()) { notice('この画面はLINEの中で開いてください。'); return; }
+    const ctx = liff.getContext();
+    canSend = !!ctx && ['group','room','utou'].includes(ctx.type);
+    booted = true;
+    renderForm();
     const p = new URLSearchParams(location.search);
     if (p.get('cheer')) { runCheer(p.get('cheer')); return; }
-    if (p.get('view') === 'calendar') { runCalendar(); return; }
-    show('form'); renderForm();
-    const ctx = liff.getContext();
-    if (!ctx || !['group','room','utou'].includes(ctx.type)) { notice('トークの中から開いたときだけ送れます。グループのボタンやアナウンスから開いてください。'); return; }
-    ready = true; renderForm();
+    const v = p.get('view');
+    show(['rewards','team','calendar'].includes(v) ? v : 'record');
+    if (!canSend) notice('トークの中から開いたときだけ、カードを流せます。');
   }).catch(e => {
     notice('起動できませんでした。LIFF ID の設定を確認してください。(' + (e && e.message ? e.message : e) + ')');
   });
